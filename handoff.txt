@@ -1,0 +1,944 @@
+
+31. SON CALISMALAR - DETAYLI TOPLU KAYIT (2026-06-10 14:28)
+----------------------------------------------------------------
+KAPSAM:
+- Bu kayit, son turlarda yapilan tum kritik kod degisikliklerini,
+  teshis adimlarini, test bulgularini ve sistem bildirimlerinin etkisini
+  tek yerde toplamak icin eklendi.
+
+1) MODEL/OOD TESHIS VE KALIBRASYON
+- Dis kaynak ve stilize gorsellerde (ozellikle portakal cizimi) modelin
+  zaman zaman yanlis sinifa kaydigi dogrulandi.
+- OOD karar mantigi birkac turda tekrar ayarlandi:
+  * bilinen siniflari gereksiz "bilinmeyen"e dusurmeyi azaltma
+  * stilize/dis dagilim orneklerde yanlis kesin etiketi engelleme
+- OOD mantigina "veto" katmani eklendi ve daha sonra dogruluk korumali
+  konservatif moda cekildi.
+- Parametreler config'e tasindi (src/config.py):
+  * OOD_VETO_AKTIF = True
+  * OOD_VETO_MESAFE_TOLERANS = 0.09
+  * OOD_VETO_ENTROPY_ESIK = 0.33
+  * OOD_VETO_MAXPROB_UST = 0.90
+- OOD detector (utils/ood_detector.py) bu parametreleri kullanacak sekilde
+  guncellendi; karar_ozeti alaniyla izlenebilirlik artirildi.
+
+2) PORTAKAL VAKASI BULGULARI
+- Kullanici tarafindan verilen dosya:
+  C:/Users/Eren Yurtaslan/Desktop/orange_duzgun1.png
+- Birden fazla tekrar testte model:
+  * rottenoranges ~0.866
+  * freshoranges ~0.105
+  * dagilim: Bilinen Tur
+- Sonuc: Bu ozel dis ornek modelde "curuk portakal" yone kaymaya devam ediyor.
+  Bu durum OOD katmani yerine siniflar arasi gorunus biasi problemi.
+- Kullanici ekraninda gorulen "portakalkuruk2.jpg" birebir yolunda dosya
+  bulunamadi; bu dosya icin terminalden direkt test henuz yapilamadi.
+
+3) ARAYUZ/UX IYILESTIRMELERI
+- Dropdown/combobox yogunlugu sadeleştirildi:
+  * veri setinden hizli secimde secici satirlari kaldirildi
+  * buton her tiklamada train+test havuzundan rastgele ornek cekiyor
+- Performans kartlarina (accuracy/loss/confusion matrix) daha acik ve
+  birkac cumlelik teknik aciklama metinleri eklendi.
+- Grafik onizleme penceresi:
+  * titlebar '?' kaynakli sorunlu davranis kapatildi
+  * pencere icine ozel '?' butonu eklendi
+  * buton tiklaninca grafik dosya yolu + teknik anlatim aciliyor
+- Tiklanabilir gorsel buyutmede parent baglanti hatasi duzeltildi.
+- Grad-CAM bilgi kutusunun minimum yuksekligi artirildi (metin kirpilmasi azaldi).
+- Ana arka plan tonu antrasitten tarcin rengine cekildi (#7b4f36).
+
+4) DOGRULAMA/TEST CIKTILARI
+- py_compile kontrolleri: temiz
+- linter kontrolleri: temiz
+- OOD denge modu hizli orneklem testi (500 test ornegi):
+  * classification_error_rate = 0.038
+  * ood_unknown_rate_on_known_test = 0.01
+- Bu sonuclar, "mevcut dogrulugu bozmadan OOD korumasi" hedefiyle uyumlu.
+
+5) SISTEM BILDIRIMLERI VE ISLETIMSEL DURUM
+- Birden fazla shell gorevinde 4294967295 kapanis kodu goruldu;
+  loglarda kritik traceback yoktu.
+- Bu kapanislar cogu durumda surec/pencere kapanis davranisiyla iliskili.
+- Her bildirimden sonra uygulama sureci kontrol edildi, gerekiyorsa tekrar
+  baslatildi ve teste hazir durumda birakildi.
+- Son aktif durum:
+  * app.py oturumu tekrar ayağa alindi ve kullanici testi icin hazir.
+
+6) GENEL DURUM OZETI
+- Proje su an:
+  * calisir durumda
+  * OOD korumasi aktif
+  * UI sade ve aciklayici
+  * test/tekrar dogrulama akisi oturmus
+- Kalan teknik risk:
+  * Dis kaynak "gercek foto-portakal" vakalarinda rotten/fresh ayriminda
+    sinif biasi halen zaman zaman gorulebilir.
+  * Kalici cozum icin ek dis veri + hard-negative odakli kisa fine-tuning
+    turu onerilir.
+================================================================
+
+30. SISTEM BILDIRIMI - GOREV 686114 BASARILI (2026-06-10 14:22)
+----------------------------------------------------------------
+- Bildirim: "Restart app to apply latest safe-mode tuning"
+  gorevi exit_code=0 ile basariyla tamamlandi.
+- Kayitta kritik traceback yok.
+- Takip kontrolu:
+  * Gorev bitiminden sonra app.py sureci calismiyordu (NOT_RUNNING).
+  * Uygulama tekrar baslatildi ve aktif durumda birakildi.
+================================================================
+
+29. SISTEM BILDIRIMI - UC GOREV OZETI (2026-06-10 03:50)
+----------------------------------------------------------------
+- task 462587 (Restart app after OOD veto update):
+  * exit_code=0, basarili tamamlandi.
+- task 326858 (Measure OOD unknown rate full tarama):
+  * exit_code=4294967295, kritik traceback yok.
+  * Islem uzun surdugu icin sonlandirilmis gorunuyor.
+- task 663869 (Sample-based safety check):
+  * exit_code=0, basarili.
+  * Sonuc: sample_size=500, classification_error_rate=0.038,
+    ood_unknown_rate_on_known_test=0.01
+- Takip kontrolu:
+  * app.py sureci RUNNING durumunda, ek aksiyon gerekmedi.
+================================================================
+
+28. OOD DENGE MODU (DOGRULUK KORUMALI) - 2026-06-09 19:41
+----------------------------------------------------------------
+- Kullanici talebi: "Evet kur ama var olan dogruluklari bozma."
+- Uygulanan strateji:
+  * OOD veto ayarlari config'e tasindi (konservatif/safe-mode):
+      OOD_VETO_AKTIF = True
+      OOD_VETO_MESAFE_TOLERANS = 0.09
+      OOD_VETO_ENTROPY_ESIK = 0.33
+      OOD_VETO_MAXPROB_UST = 0.90
+  * OOD veto kurali bu parametreleri kullanacak sekilde guncellendi.
+
+- Hizli guvenlik olcumu (test setinden 500 ornek):
+  * classification_error_rate: 0.038
+  * ood_unknown_rate_on_known_test: 0.01
+  => Bilinen test orneklerinde bilinmeyene dusme orani dusuk tutuldu.
+
+- orange_duzgun1 tekrar testi:
+  * Tahmin: rottenoranges (0.866)
+  * Dagilim: Bilinen Tur
+  => Bu ozel ornek modelde hala curuk yone kayiyor (sinif bias problemi).
+
+- Teknik durum:
+  * py_compile temiz
+  * linter temiz
+  * uygulama yeniden baslatildi
+================================================================
+
+27. KULLANICI CANLI TEST GERI BILDIRIMI (2026-06-09 19:38)
+----------------------------------------------------------------
+- Kullanici geri bildirimi:
+  * "Ben kendim test ettim, su an bilinmeyen diyor."
+- Yorum:
+  * OOD bilinmeyen koruma katmani canli testte devreye girmis gorunuyor.
+  * Stilize/dis dagilim portakal cizimlerinin zorla yanlis sinifa itilmesi
+    yerine "Bilinmeyen Tur"e alinmasi hedeflenen davranistir.
+================================================================
+
+26. SISTEM BILDIRIMI - GOREV 432494 HATA (2026-06-09 19:36)
+----------------------------------------------------------------
+- Bildirim: "Restart app with help button and cinnamon theme" gorevi
+  exit_code=4294967295 ile sonlanmis.
+- Kayit analizi:
+  * Kritik traceback yok, yalnizca bilinen TensorFlow/Keras warning var.
+  * Bu kapanis kodu, surecin dis etkenle sonlanmasinda gorulebiliyor.
+- Takip:
+  * app.py icin aktif oturum RUNNING olarak dogrulandi.
+  * Ek yeniden baslatma gerekmiyor.
+================================================================
+
+25. CIZIM PORTAKAL VAKASI - EK TESHIS (2026-06-09 19:35)
+----------------------------------------------------------------
+- Kullanici raporu: Portakal ciziminde model portakal yerine diger siniflara
+  kayabiliyor (ornek ekranda rotten apple baskin).
+- Dogrulama:
+  * Verilen yol kontrolu:
+      C:/Users/Eren Yurtaslan/Desktop/orange_duzgun1.png mevcut
+      C:/Users/Eren Yurtaslan/Desktop/portakalkuruk2.jpg bulunamadi
+  * orange_duzgun1 sonucu:
+      rottenoranges (0.866), freshoranges (0.105)
+      dagilim = Bilinen Tur
+  * Bu ornek modelin portakal icinde "curuk" yone kayma davranisiyla tutarli.
+
+- Ek aksiyon:
+  * OODAlgilayici'na stilize/dis dagilim icin veto kurali eklendi:
+      - mesafe belirgin kotu + entropy yuksek + max_prob orta ise
+        bilinen etiketi veto edilir.
+  * Uygulama yeniden baslatildi.
+
+- Not:
+  * Ekrandaki cizim vakasi (portakalkuruk2.jpg) dosyasi bulunamadigi icin
+    birebir ayni dosyada terminalden test henuz yapilamadi.
+================================================================
+
+24. SISTEM BILDIRIMI - GOREV 212266 HATA (2026-06-09 19:16)
+----------------------------------------------------------------
+- Bildirim: "Start app after successful completed task" gorevi
+  exit_code=4294967295 ile sonlanmis.
+- Kayit analizi:
+  * Kritik traceback yok.
+  * Bu kod genelde pencere/surec sonlandirma davranisinda gorulebilir.
+- Takip:
+  * app.py icin aktif bir guncel oturum calisiyor (RUNNING dogrulandi).
+  * Ek yeniden baslatma gerekmedi.
+================================================================
+
+23. KULLANICI GERI BILDIRIMI - PORTAKAL + HELP BUTONU + TARCIN TEMA (2026-06-09 19:16)
+----------------------------------------------------------------
+- Kullanici girdileri:
+  1) Dogrulama dosyasi: C:/Users/Eren Yurtaslan/Desktop/orange_duzgun1.png
+  2) Grad-CAM ve grafik onizleme davranisi (titlebardaki '?' sorunu)
+  3) Dataset/disaridan bazi orneklerde tutarsizliklarin tekrar degerlendirilmesi
+  4) Arka planda antrasit yerine tarcin tonu talebi
+
+- Yapilan aksiyonlar:
+  * ui/main_window.py
+      - Ana arka plan tarcin tonuna alindi (#7b4f36).
+      - Grad-CAM aciklama kutusu minimum yuksekligi artirildi (kirpilma azaltildi).
+      - Grafik onizleme dialogunda titlebar '?' butonu kapatildi.
+      - Onizleme penceresine ozel '?' teknik bilgi butonu eklendi.
+      - '?' butonu tiklaninca:
+          - ilgili grafik dosya yolu
+          - detayli teknik aciklama
+        bilgi kutusunda gosteriliyor.
+      - Tiklanabilir gorsel parent yonlendirmesi ana pencereye alindi.
+
+  * utils/ood_detector.py
+      - OOD kararinda "bilinen" lehine yumusatma:
+          - oy_coklugu_bilinen: saglanan >= 2
+          - yuksek_olasilik_bilinen: max_prob >= 0.75 ve entropy <= 0.35
+      - karar_ozeti alani eklendi.
+
+- Test sonuclari:
+  * orange_duzgun1.png:
+      - model_sinif: rottenoranges
+      - guven: 0.8660
+      - dagilim: Bilinen Tur
+      - top2: rottenoranges 0.866, freshoranges 0.105
+    => Model bu dis ornegi "curuk portakal" olarak gormeye devam ediyor.
+  * Vertical_flip rottenapple orneklerinde OOD artik "Bilinen Tur"e dusuyor.
+
+- Teknik durum:
+  * py_compile temiz
+  * linter temiz
+  * uygulama yeniden baslatildi
+================================================================
+
+22. SISTEM BILDIRIMI - GOREV 783377 BASARILI (2026-06-09 18:42)
+----------------------------------------------------------------
+- Bildirim: "Restart app with dropdown-hidden random mode" gorevi
+  exit_code=0 ile basariyla tamamlandi.
+- Kayitta kritik hata yok, yalnizca bilinen TensorFlow/Keras warning var.
+- Takip aksiyonu:
+  * Gorev bitiminde app sureci kapali oldugu goruldu.
+  * Uygulama tekrar baslatildi ve aktif durumda birakildi.
+================================================================
+
+21. SISTEM BILDIRIMI - GOREV 534952 HATA (2026-06-09 17:54)
+----------------------------------------------------------------
+- Bildirim: "Restart app to load new UI and logic" gorevi
+  exit_code=4294967295 ile sonlanmis.
+- Kayit analizi:
+  * Kritik bir Python traceback yok.
+  * Bu genelde pencerenin disaridan kapatilmasi/oturum sonlandirma
+    davranisina bagli gorulebilen bir kapanis kodudur.
+- Takip durumu:
+  * Daha yeni app oturumu (guncel terminal) aktif ve calisiyor.
+  * Kullanici testi guncel oturum uzerinden devam edebilir.
+================================================================
+
+20. UI SADELIK + ACIKLAMA REVIZYONU (2026-06-09 17:54)
+----------------------------------------------------------------
+- Kullanici istegi:
+  * Rastgele secim modunda dropdown/combobox gorunmesin.
+  * Performans kartlarinin altina daha aciklayici metin eklensin.
+  * Dis kaynak taze portakal kararina tekrar guvenilir aciklama istendi.
+
+- Yapilan degisiklikler (ui/main_window.py):
+  * Veri Setinden Hizli Secim bolumunden bolum/sinif/dosya combobox satirlari
+    kaldirildi; yalnizca bilgi metni + "Veri Setinden Yukle" butonu birakildi.
+  * "Veri Setinden Yukle" her tiklamada tum dataset (train+test) icinden
+    bagimsiz rastgele ornek secer sekilde guncellendi.
+  * Performans kartlarinda (accuracy/loss/confusion matrix) her grafik icin
+    ayri, birkac cumlelik aciklama metinleri eklendi.
+  * Tiklanabilir performans gorselinde parent hatasi kalici olarak duzeltildi
+    (QGroupBox yerine ana pencere methoduna yonlenme).
+
+- Dogrulama:
+  * py_compile: temiz
+  * linter: temiz
+  * Uygulama yeniden baslatildi.
+================================================================
+
+19. SISTEM BILDIRIMI - GOREV 270680 (2026-06-09 17:40)
+----------------------------------------------------------------
+- Tamamlanan gorev: "Relaunch app if no python process" (exit_code: 0).
+- Kayitta onceki oturumdan bir UI hata izi var:
+  Tiklanabilir gorselde parent baglanti hatasi (QGroupBox).
+- Takip:
+  * Guncel uygulama oturumu ayakta (son baslatma aktif).
+  * Kullanici testi, guncel oturum uzerinden devam etmeli.
+================================================================
+
+17. SISTEM BILDIRIMI - APP OTURUMU SONLANDI/TEKRAR ACILDI (2026-06-08 22:05)
+----------------------------------------------------------------
+- Sistem bildirimi: onceki app oturumu (task 195185) exit_code 0 ile bitti.
+- Takip aksiyonu:
+  * Uygulama tekrar baslatildi (yeni terminal oturumu aktif).
+  * Ilk acilis kontrolunde kritik hata cikmadi.
+================================================================
+
+16. UYGULAMA CALISTIRMA ISTEGI (2026-06-08 22:02)
+----------------------------------------------------------------
+- Kullanici uygulamayi calistirmami ve test kontrollerini yapmak istedigini iletti.
+- Terminal kontrolu:
+  * app.py zaten aktif bir oturumda calisiyor (process ayakta).
+  * Kritik hata yok, yalnizca bilinen TensorFlow/Keras warning gorunuyor.
+- Aksiyon:
+  * Yeni kopya baslatilmadi (cakisma olmamasi icin).
+  * Mevcut calisan uygulama uzerinden kullanici test yapmaya hazir.
+================================================================
+
+15. ARKA PLAN GOREV BILDIRIMI (2026-06-08 21:58)
+----------------------------------------------------------------
+- "python app.py" gorevi basariyla tamamlandi (exit_code: 0).
+- Kayitta yalnizca bilinen TensorFlow/Keras derleme metrik uyarisi var.
+- Ek takip: Uygulamanin yeni oturumu zaten ayakta (terminal 195185 calisiyor),
+  bu nedenle yeniden baslatma gerekmedi.
+================================================================
+
+14. UYGULAMA HATA DUZELTME TURU (2026-06-08 21:58)
+----------------------------------------------------------------
+- Kullanici geri bildirimi:
+  1) Harici yuklenen portakal bazen "Bilinmeyen Tur" oluyor.
+  2) "Veri Setinden Yukle" akisinda ayni elma tekrarli gorunuyor.
+  3) Performans grafikleri cok kucuk.
+  4) Grad-CAM dogrulugu soruldu.
+- Yapilan duzeltmeler:
+  * OOD karar mantigi yumusatildi (utils/ood_detector.py).
+  * Hizli secim tekrar davranisi iyilestirildi (ui/main_window.py).
+  * Grafik olcekleme duzeltildi (ui/main_window.py).
+  * Grad-CAM bilgi metni OOD durumuna baglandi.
+- Dogrulama:
+  * Bilinen orange -> Bilinen Tur
+  * Rastgele gorsel -> Bilinmeyen Tur
+  * py_compile + linter temiz
+  * Uygulama yeniden baslatildi.
+- Egitim seviyesi:
+  * Test accuracy: 0.9685
+  * Makro F1: 0.9689
+  * En iyi val_accuracy: 0.9784 (yaklasik 16. epoch)
+================================================================
+================================================================
+HANDOFF - PROJE HAFIZA VE DURUM DOSYASI
+Grad-CAM Destekli Aciklanabilir Meyve Tazelik Siniflandirma Sistemi
+================================================================
+
+Bu dosya, sohbet baglamini (chat context) taze tutmak ve yeni bir
+oturumda projenin neresinde kalindigini hizlica hatirlamak icin
+tutulur. Her onemli ilerlemede guncellenir.
+
+----------------------------------------------------------------
+1. PROJE OZETI
+----------------------------------------------------------------
+- Amac: Goruntulerden meyvelerin TAZE mi yoksa CURUK mu oldugunu
+  siniflandiran, kararlarini Grad-CAM ile aciklayan bir sistem.
+- Ingilizce ad: Fruit Freshness Classification and Explainable
+  Image Analysis Using Grad-CAM
+- Turkce ad: Grad-CAM Destekli Aciklanabilir Meyve Tazelik
+  Siniflandirma Sistemi
+- Ders: Universite - Bilgisayarli Goru donem sonu projesi.
+- Dil kurali: TUM ciktilar (kod yorumlari, dokuman, arayuz, README,
+  PDF) Turkce olacak.
+
+----------------------------------------------------------------
+2. VERI SETI (GERCEK YAPI - dogrulandi)
+----------------------------------------------------------------
+Konum: dataset/
+Yapi: train/ ve test/ olarak onceden bolunmus. Validation YOK.
+6 sinif (klasor adlari, alfabetik):
+    freshapples, freshbanana, freshoranges,
+    rottenapples, rottenbanana, rottenoranges
+NOT: Isimlendirme tutarsiz (banana tekil, digerleri cogul).
+     Bu yuzden sinif adlari ASLA koda gomulmez; klasorlerden
+     dinamik okunur.
+
+Egitim (train) goruntu sayilari:
+    freshapples   : 1693
+    freshbanana   : 1581
+    freshoranges  : 1466
+    rottenapples  : 2342
+    rottenbanana  : 2224
+    rottenoranges : 1595
+    TOPLAM        : 10901
+
+Test goruntu sayilari:
+    freshapples   : 395
+    freshbanana   : 381
+    freshoranges  : 388
+    rottenapples  : 601
+    rottenbanana  : 530
+    rottenoranges : 403
+    TOPLAM        : 2698
+
+- Tum dosyalar .png, veri seti zaten artirilmis (dosya adlarinda
+  rotated_by_15 vb.). Bu yuzden augmentation HAFIF tutulur.
+- Sinif dengesizligi ~1.6x (en cok rottenapples / en az freshoranges).
+  class_weight ile telafi edilir.
+
+----------------------------------------------------------------
+3. ORTAM
+----------------------------------------------------------------
+- OS: Windows 10/11, PowerShell
+- Python: 3.9.13
+- TensorFlow: 2.10.1 (Windows + Py3.9 uyumlu son surum)
+- Model formati: .h5 (TF 2.10 .keras formatini tam desteklemez)
+- Bagimliliklar: requirements.txt icinde sabit surumlerle.
+
+----------------------------------------------------------------
+4. MIMARI KARARLAR
+----------------------------------------------------------------
+- Model: MobileNetV2 (ImageNet onceden egitimli) + transfer learning
+- Goruntu boyutu: 224x224
+- Batch size: 32
+- Egitim 2 asamali:
+    Asama 1 (feature extraction): base donuk, ~15-20 epoch
+    Asama 2 (fine-tuning): son ~30 katman acik, LR=1e-5, ~10 epoch
+- EarlyStopping(val_loss, patience=5, restore_best_weights=True)
+- ModelCheckpoint(val_accuracy, save_best_only=True)
+- Validation: train icinden %20 stratified (seed sabit=42)
+- preprocess_input train/predict/gradcam'de TUTARLI uygulanir.
+- class_indices.json kaydedilir ve her yerde okunur (etiket kaymasi
+  onlenir).
+
+----------------------------------------------------------------
+5. KLASOR / DOSYA YAPISI
+----------------------------------------------------------------
+fruit-freshness-classification/
+  dataset/            (mevcut - dokunulmaz)
+  models/             (egitilmis model + class_indices.json)
+  outputs/            (grafikler, confusion matrix, gradcam gorselleri)
+  reports/            (classification report, metrik json, PDF)
+  src/
+    config.py         (merkezi ayarlar)
+    data_loader.py    (veri yukleme, dinamik sinif, augmentation)
+    model_builder.py  (MobileNetV2 model kurulumu)
+    utils.py          (grafik/yardimci fonksiyonlar)
+  train.py
+  evaluate.py
+  predict.py
+  gradcam.py
+  app.py              (PyQt5)
+  generate_report.py  (akademik PDF)
+  requirements.txt
+  README.md
+  handoff.txt
+  chats.txt
+
+----------------------------------------------------------------
+6. GELISTIRME SIRASI (TODO DURUMU)
+----------------------------------------------------------------
+[1] handoff.txt + chats.txt + requirements.txt        -> TAMAM
+[2] src/ altyapisi (config, data_loader, model_builder, utils) -> TAMAM
+[3] train.py                                          -> TAMAM
+[4] evaluate.py                                       -> TAMAM
+[5] gradcam.py                                        -> TAMAM
+[6] predict.py                                        -> TAMAM
+[7] app.py (PyQt5)                                    -> TAMAM
+[8] README.md + generate_report.py (PDF)             -> TAMAM
+
+DURUM NOTU (guncel):
+- TUM kod dosyalari yazildi ve sozdizimi/akis dogrulandi.
+- Bagimliliklar ortamda zaten kurulu (tensorflow, cv2, sklearn,
+  PyQt5, reportlab, matplotlib, numpy, PIL).
+- DOGRULANAN AKISLAR (egitimsiz):
+    * Dinamik sinif tespiti: 6 sinif dogru okundu.
+    * class_weight hesabi calisiyor.
+    * MobileNetV2 modeli kuruluyor (~2.27M parametre).
+    * Grad-CAM grad-model + isi haritasi: son conv katmani 'Conv_1'
+      otomatik bulundu; 7x7 isi haritasi -> 224x224 overlay uretildi.
+    * generate_report.py: reports/akademik_rapor.pdf uretildi
+      (henuz egitim ciktilari olmadigi icin yer tutucularla).
+- HENUZ YAPILMADI: gercek egitim (python train.py). CPU'da uzun
+  surebilir. Egitim sonrasi sirayla calistir:
+    python train.py
+    python evaluate.py
+    python gradcam.py --image <yol>
+    python generate_report.py   (PDF'i gercek ciktilarla yeniler)
+    python app.py
+- NOT: TF 2.10 + protobuf 6.x arasinda zararsiz UserWarning ciktilari
+  gorulebilir; akisi etkilemez.
+
+----------------------------------------------------------------
+7. RISKLER / DIKKAT
+----------------------------------------------------------------
+- preprocess tutarsizligi en sik hata kaynagidir.
+- Grad-CAM son conv katmani otomatik tespit edilir (gomulmez).
+- PyQt5 + TF: model uygulama acilisinda BIR KEZ yuklenir (donma onlenir).
+- Egitim suresi GPU yoksa uzun; epoch config.py'den ayarlanabilir.
+- TF 2.10 ile .keras yerine .h5 kullanilir.
+----------------------------------------------------------------
+8. KULLANICI NOTU (YALNIZCA KAYIT - HENUZ UYGULANMAYACAK)
+----------------------------------------------------------------
+- Kullanici talimati: "AYRICA SUNUM ICERIGINE GEREK YOK. SADECE RAPOR
+  HAZIRLANACAK. RAPORUN KISITLARI: Uygulamayi anlatan 1-2 sayfalik
+  rapor yüklenecek. Raporda ne yapildigi, neler kullanildigi (varsa veri
+  seti), elde edilen sonuclar sekil/grafik/tablo ile ozetlenecek.
+  Rapora isim ve numara yazilacak. Link detayi onemsiz, odak rapor."
+- Bu not sadece baglam kaydi icindir. Kullanici acikca istemeden bu
+  kisim su an uygulanmayacak.
+----------------------------------------------------------------
+9. EK KULLANICI NOTU (2026-06-08)
+----------------------------------------------------------------
+- Rapor 1-2 sayfa kisitina girecek olsa bile icerik DARALTILIP bozularak
+  yazilmayacak. Chatin basinda planlanan kapsamli bolumlendirme (13-14+
+  madde mantigi) korunacak; kisaltma yapilacaksa sadece bicim/sunum
+  optimizasyonu uygulanacak, icerik omurgasi korunacak.
+- Uygulama (masaustu arayuz) bu asamada birincil odak. Kod/eğitim/mantık
+  işleri Codex ile, PDF/gorsel dokuman tasarimi Opus ile surdurulecek.
+----------------------------------------------------------------
+10. UYGULAMA ARAYUZ REFAKTORU (2026-06-08)
+----------------------------------------------------------------
+- app.py sade giris noktasi olarak yeniden duzenlendi.
+- Yeni moduler yapi eklendi:
+    ui/main_window.py
+    utils/predictor.py
+    utils/gradcam.py
+    utils/image_utils.py
+- Arayuz sekmeli yapiya gecirildi:
+    1) Tahmin Sonucu
+    2) Grad-CAM Analizi
+    3) Model Bilgileri
+    4) Performans Sonuclari
+- Sol panel: gorsel secme + onizleme + durum mesajlari.
+- Sag panel: tahmin sinifi, guven, genel durum (TAZE/CURUK), meyve turu,
+  tum sinif olasiliklari (progress bar), Grad-CAM karsilastirmasi, model
+  teknik ozeti, accuracy/loss/confusion matrix gosterimi.
+- TensorFlow bagimli servisler lazy-load yapisina alindi (acilista takilma
+  hissini azaltmak icin).
+- README klasor yapisi yeni ui/utils modulleriyle guncellendi.
+----------------------------------------------------------------
+11. ARAYUZ SON CILALAMA (2026-06-08 21:00)
+----------------------------------------------------------------
+- Tasarim dili sade/modern/sicak olacak sekilde yeniden ele alindi.
+- Renk sistemi yeniden kuruldu:
+    * Arka plan: antrasit/koyu ton
+    * Kartlar: krem/bej
+    * Vurgu: pastel camgobegi + indigo
+    * Uyari: bordo
+- Sekmeler yeniden adlandi:
+    1) Analiz
+    2) Grad-CAM
+    3) Model Bilgileri
+    4) Performans Sonuclari
+- Sol panelde iki yukleme yontemi aktif:
+    * Harici gorsel yukleme (.png/.jpg/.jpeg)
+    * Veri setinden hizli secim (bolum/sinif/dosya combobox)
+- Veri setinden secim yapildiginda otomatik analiz akisi aktif:
+    onizleme -> tahmin -> guven/olasiliklar -> Grad-CAM.
+- Tahmin karti bilgi alanlari netlestirildi:
+    * Meyve Turu
+    * Kalite Durumu (TAZE/CURUK)
+    * Tahmin Sinifi
+    * Guven Skoru
+- Performans gorselleri tiklanarak buyutulebilir hale getirildi.
+----------------------------------------------------------------
+12. GUNCEL KULLANICI ODAK NOKTASI (2026-06-08 21:08)
+----------------------------------------------------------------
+- Kullanici arayuzu canli gormek istiyor (uygulama acilisi).
+- Ek teknik merak:
+    * Disaridan veri setinde olmayan bir meyve turu (orn. ejder meyvesi)
+      yuklenirse sistem davranisi ne olur?
+    * Egitim overfit/underfit dengesi optimum noktada mi?
+- Beklenti:
+    * Bu sorulara net teknik aciklama
+    * Uygulama odakli ilerleme, gereksiz dagilmama
+    * Kod/eğitim tarafi Codex ile, dokuman-gorsel tasarim Opus ile.
+----------------------------------------------------------------
+13. OOD / BILINMEYEN TUR KATMANI (2026-06-08 21:22)
+----------------------------------------------------------------
+- Yeni modul eklendi: utils/ood_detector.py
+  Hibrit karar sistemi:
+    1) Maximum Probability
+    2) Entropy (normalize)
+    3) Embedding Distance (cosine, sinif merkezlerine)
+- OOD istatistik cache dosyasi:
+    models/ood_stats.json
+- OOD istatistikleri train verisinden sinif basi 400 ornekle cikartildi.
+  Toplam kullanilan embedding ornegi: 2400
+- Hesaplanan esikler (guncel):
+    max_prob_alt_esik   = 0.9403
+    entropy_ust_esik    = 0.1346
+    distance_ust_esik   = 0.3548
+- Tahmin servisi OOD ile entegre edildi (utils/predictor.py):
+    * dagilim_durumu: Bilinen Tür / Bilinmeyen Tür
+    * bilinen_mi: bool
+    * ood_metrikleri: max_prob, entropy, embedding_distance, ood_guven_puani
+- UI entegrasyonu (ui/main_window.py):
+    * Analiz kartina "Dağılım Durumu" alani eklendi.
+    * OOD metrik ozeti gosterimi eklendi.
+    * Bilinmeyen durumda:
+        Meyve Türü = Bilinmiyor
+        Kalite Durumu = Belirlenemedi
+        Güven = Düşük
+        Dağılım Durumu = Bilinmeyen Tür
+- Uygulama yeni OOD surumuyle yeniden baslatildi.
+- OOD karar kalibrasyonu guncellendi:
+    * Tek metrik katiligi azaltildi (oy coklugu + birlesik puan).
+    * Bilinen test orneginde "Bilinen Tür", rastgele goruntude
+      "Bilinmeyen Tür" davranisi dogrulandi.
+================================================================
+
+18. TESHIS + ARAYUZ REVIZYONU (2026-06-09 17:39)
+----------------------------------------------------------------
+- Kullanici geri bildirimi:
+  1) Disaridan gelen bazi taze meyveler curuk tahminlenebiliyor.
+  2) Elma/muz yukleyince performans grafikleri ayni gorunuyor.
+  3) "Goruntu Yukleme" basligi kayboluyor, tema/font daha bohem isteniyor.
+  4) Veri setinden yukleme iteratif yerine rastgele isteniyor.
+
+- Kanita dayali teshis:
+  * Egitim metrikleri guclu: test accuracy=0.9685, macro F1=0.9689.
+  * Orange sinifinda asimetri var:
+      freshoranges -> rottenoranges: 16 / 388
+      rottenoranges -> freshoranges: 1 / 403
+    Bu, taze portakalin "curuk" yone kaymasina yatkinlik oldugunu gosteriyor.
+  * Train dagilim ozetleri:
+      - rottenoranges lap_var ortalamasi freshoranges'tan belirgin yuksek
+      - rottenoranges sat/parlaklik ortalamasi daha dusuk
+    => Model benek/doku/kararma gibi ipuclarina fazla baglanabilir.
+  * Performans grafikleri ayni gorunmesi beklenen davranis:
+    bu grafikler yuklenen tek goruntuye degil egitim gecmisine ait.
+
+- Uygulanan kod degisiklikleri:
+  * ui/main_window.py
+      - Renk/font sistemi bohem yone cekildi (indigo/haki/taba/kahve/bej/krem).
+      - QGroupBox baslik rozet stili eklendi; "Goruntu Yukleme" gorunurlugu guclendirildi.
+      - Tahmin sinifi + kritik alanlarin gorsel hiyerarsisi guclendirildi.
+      - Performans kartlarina aciklayici bilgi metni eklendi
+        (grafikler yuklenen gorsele degil egitim gecmisine aittir).
+      - "Veri Setinden Yukle" akisi tamamen rastgeleye cevrildi:
+        her tiklamada secili bolumden bagimsiz rastgele ornek seciliyor.
+        Sirali/iteratif ilerleme kaldirildi.
+      - Rastgele secilen dosya, mevcut sinif/dosya combolarina senkron yaziliyor.
+
+- Teknik dogrulama:
+  * py_compile: temiz
+  * linter: temiz
+  * Uygulama yeniden baslatildi (app.py, aktif)
+================================================================
+
+19. OOD TESHIS + MESAFE-ONCELIKLI HIYERARSI + KALIBRASYON (2026-06-10)
+----------------------------------------------------------------
+PLAN MODE ciktisi onaylandi ve uygulandi. Sorunun calibration degil,
+closed-set siniflandirma + OOD karar hiyerarsisi oldugu kanitlandi.
+
+- 7 dis ornek outputs/ood_test/ klasorune kopyalandi (masaustunden):
+  ejder_meyvesi, lici, mor_uzum, mor_erik, murdum_erigi, mandalina, greyfurt
+
+- YENI BETIKLER:
+  * diagnose_ood.py  -> teshis: mesafe histogrami, PCA embedding,
+    Grad-CAM izgarasi, reports/ood_teshis_raporu.md,
+    outputs/ood_analiz/eski_sistem_sonuclari.json (eski sistem kaydi)
+  * calibrate_ood.py -> esik izgara taramasi (504 bilinen test ornegi),
+    reports/ood_kalibrasyon_raporu.md
+  * compare_ood.py   -> once/sonra dogrulama:
+    reports/ood_karsilastirma_raporu.md,
+    outputs/ood_analiz/karsilastirma_tablosu.csv,
+    outputs/ood_analiz/once_sonra_karsilastirma.png
+  * calibrate_temperature.py -> T ogrenimi (dogrulama kumesi, 2180 ornek),
+    models/temperature_calibration.json
+
+- TESHIS BULGULARI:
+  * Eski sistem dis orneklerde 0/7 yakalama (hepsi %98+ guvenle bilinen).
+  * Mesafe sinyali 5/7'yi dogru ayirt ediyordu ama yuksek_olasilik_bilinen
+    ve oy_coklugu_bilinen kurallari onu eziyordu; veto entropy>0.33 sartina
+    bagli oldugundan (entropy~0) hic tetiklenmiyordu.
+  * Dis ornek mesafeleri: ejder 0.495, lici 0.492, uzum 0.548, erik 0.321,
+    murdum 0.415, mandalina 0.287, greyfurt 0.381.
+  * Bilinen test dagilimi: P50=0.234, P95=0.350, P99=0.384.
+
+- YENI KARAR MANTIGI (utils/ood_detector.py):
+  * Mesafe-oncelikli hiyerarsi (oylama/veto kaldirildi):
+      mesafe > T_yuksek -> kosulsuz Bilinmeyen
+      mesafe < T_dusuk  -> Bilinen
+      gri bolge         -> max_prob>=0.80 ve entropy<=0.30 ise Bilinen
+  * hiyerarsik_karar() saf (statik) fonksiyon olarak da disari acildi
+    (kalibrasyon/karsilastirma betikleri ayni mantigi kullanir).
+  * Cikti alanlari eklendi: en_yakin_sinif, tetikleyen_kural,
+    hiyerarsi_esikleri, yeni karar_ozeti.
+
+- CONFIG (src/config.py):
+  * OOD_VETO_* kaldirildi. Yeni:
+      OOD_MESAFE_T_YUKSEK = 0.380
+      OOD_MESAFE_T_DUSUK  = 0.355
+      OOD_GRI_MAXPROB_ESIK = 0.80
+      OOD_GRI_ENTROPY_ESIK = 0.30
+      KALIBRASYON_DOSYA = models/temperature_calibration.json
+
+- KALIBRASYON SONUCLARI (504 bilinen test ornegi):
+  * Yanlis "bilinmeyen" orani: %1.79 (hedef <= %2) SAGLANDI
+  * Dis ornek yakalama: 5/7 (hedef >= 5/7) SAGLANDI
+  * Ham dogruluk %95.24 -> OOD sonrasi bilinen kalanlarda %95.35
+    (dogruluk BOZULMADI, hafif iyilesti)
+  * Senaryolar: 6/7 icin T=0.318 gerekir -> %11.31 yanlis bilinmeyen
+    (reddedildi); 7/7 icin T=0.284 -> %23.41 (reddedildi).
+  * Mor Erik (0.321) ve Mandalina (0.287) bilinen bolgede kaldigi icin
+    tek global esikle yakalanamiyor -> kabul edilen sinirlilik,
+    ikinci faz onerisi: Mahalanobis / sinif-bazli esik.
+
+- ONCE/SONRA (compare_ood.py):
+  * Eski: 0/7 yakalama, %1.39 yanlis OOD
+  * Yeni: 5/7 yakalama, %1.79 yanlis OOD
+  * Yakalananlarin tamami "Mesafe > T_yuksek" kuraliyla tetiklendi.
+
+- TEMPERATURE SCALING:
+  * T = 0.85 (dogrulama NLL minimizasyonu, izgara 0.50-5.00)
+  * NLL 0.0531 -> 0.0523, ECE 0.0103 -> 0.0055, argmax DEGISMEDI.
+  * utils/predictor.py: kalibre_guven + kalibrasyon_t sonuca eklendi;
+    model_bilgi_ozeti'ne OOD hiyerarsi esikleri + T eklendi.
+
+- UI (ui/main_window.py):
+  * Bilinmeyen durumda: "Dagilim Durumu: Bilinmeyen Tur - bu goruntu
+    egitim dagiliminin disinda", "Meyve Turu: Bilinmiyor (en cok
+    benzedigi: X)", guven "Gecersiz".
+  * Bilinen durumda guven yaninda "(kalibre: %Y)" gosterimi.
+  * OOD metrik satirina "Karar Kurali: ..." eklendi.
+  * Grad-CAM bilgi metni bilinmeyen durumda en yakin sinifi soyluyor.
+
+- AKADEMIK RAPOR (generate_report.py):
+  * "12.1 Acik Kume Tanima (Open-Set Recognition) Bulgulari" bolumu eklendi.
+  * Gelecek Calismalar'a Mahalanobis/sinif-bazli esik, ArcFace, OpenMax eklendi.
+  * PDF yeniden uretildi (reports/akademik_rapor.pdf).
+
+- SMOKE TEST: ejder -> Bilinmeyen Meyve (kural: mesafe>T_yuksek),
+  mandalina -> Fresh Orange (bilinen bolge, kabul edilen sinirlilik),
+  taze portakal -> Fresh Orange (bilinen), curuk elma -> Rotten Apple.
+
+- NOT: models/ood_stats.json (merkezler + percentile esikler) degismedi;
+  hiyerarsi esikleri artik config'ten okunuyor. Uygulama yeniden
+  baslatilirsa yeni mantik otomatik devrede.
+================================================================
+
+20. UC KADEMELI KARAR: BILINEN / SINIRDA / BILINMEYEN (2026-06-10)
+----------------------------------------------------------------
+- Kullanici geri bildirimi: sari burusuk elma (gercek elma, dis kaynak)
+  "Bilinmeyen" cikti; eski sistem onu Curuk Elma diyordu. Kullanici hem
+  yabanci meyveleri yakalamak hem gercek-ama-alisilmadik meyveleri
+  tanimak istiyor.
+
+- OLCUM SONUCLARI (kNN k=5, en yakin 5 train ornegine ort. cosine):
+  * Bilinen test dagilimi: P95=0.301, P99=0.338, max=0.374
+  * Sari elma 0.412 / Murdum 0.454 / Lici 0.467 / Uzum 0.495 /
+    Curuk portakal (dis, gercek) 0.495 / Ejder 0.514
+  * Mandalina 0.276 / Taze portakal (dis) 0.308 / Erik 0.320
+  => Gercek-ama-alisilmadik meyveler ile yabanci meyveler embedding
+     uzayinda IC ICE; hicbir tek esik ikisini ayni anda ayiramaz.
+     Sinif-bazli P99 esigi de cozmuyor (sari elma rottenapples
+     P99=0.390'in ustunde, d=0.450). Bu MODELIN TEMSIL SINIRI.
+
+- COZUM: UC KADEMELI KARAR (kullanici secenek sorusunu atladi,
+  onerilen secenek uygulandi):
+  * mesafe > T_yuksek (0.460) -> kosulsuz Bilinmeyen
+  * mesafe < T_dusuk (0.355)  -> Bilinen
+  * gri bolge: softmax sinifi == en yakin merkez sinifi VE
+    maxprob>=0.80 VE entropy<=0.30 -> "Sinirda" (tahmin dusuk guven
+    uyarisiyla gosterilir); uyusmazlik/dusuk guven -> Bilinmeyen
+
+- KOD DEGISIKLIKLERI:
+  * src/config.py: OOD_MESAFE_T_YUKSEK 0.380 -> 0.460 (kesin bilinmeyen
+    siniri), uc kademe aciklamasi.
+  * utils/ood_detector.py: hiyerarsik_karar artik (durum, kural) doner;
+    durum: "bilinen"|"sinirda"|"bilinmeyen". softmax-merkez uyumu
+    parametreleri eklendi. degerlendir ciktisina durum_kodu, sinirda_mi,
+    karar_ozeti.softmax_merkez_uyumu eklendi.
+  * utils/predictor.py: sinirda_mi/durum_kodu gecirildi; sinirda
+    durumda sinif_gosterim "X (?)" olarak isaretlenir.
+  * ui/main_window.py: sinirda icin kehribar rozet ("Dagilim Durumu:
+    Sinirda - egitim dagiliminin kenarinda..."), guven satirina
+    "dusuk guvenilirlik" notu, Grad-CAM bilgi metni sinirda varyanti.
+  * calibrate_ood.py / compare_ood.py uc kademeye gore yeniden yazildi
+    (en_yakin sinif npz'ye eklendi, izgara 0.380-0.520).
+
+- KALIBRASYON (504 bilinen test ornegi, T_yuksek=0.460):
+  * Yanlis "bilinmeyen": %0.60 (onceki %1.79'dan iyi, hedef <= %2)
+  * Bilinen orneklerde sinirda uyarisi: %3.37 (tahmin gosteriliyor)
+  * Gosterilen orneklerde dogruluk: %95.41 (ham %95.24)
+  * Dis ornekler: 3/7 kesin Bilinmeyen (ejder, lici, uzum) +
+    2/7 Sinirda uyarili (murdum, greyfurt) = 5/7 isaretleme
+
+- SMOKE TEST:
+  * Sari elma -> Rotten Apple (?) / Sinirda (KULLANICI ISTEGI SAGLANDI)
+  * Uzum, Ejder -> Bilinmeyen Meyve (mesafe kurali)
+  * Curuk portakal (dis) -> Bilinmeyen (sinyal uyusmazligi:
+    softmax rottenapples vs merkez rottenbanana - durust sonuc)
+  * Murdum -> Rotten Banana (?) / Sinirda (kabul edilen odun:
+    kesin bilinmeyen yerine uyarili tahmin)
+  * Bilinen test ornekleri -> Bilinen, dogru sinif.
+
+- Akademik rapor 12.1 bolumu uc kademeli karara gore guncellendi,
+  PDF yeniden uretildi. Uygulama yeni mantikla yeniden baslatildi.
+================================================================
+
+21. ACIK SORUN: MURDUM ERIGI "ROTTEN BANANA (?)" GORUNUYOR (2026-06-10)
+----------------------------------------------------------------
+- Kullanici geri bildirimi (ekran goruntusu ile): murdum erigi uc
+  kademeli sistemde "Rotten Banana (?)" / Sinirda olarak gosteriliyor.
+  Kullanici bunu sacma buluyor; HENUZ COZUM UYGULANMADI, once
+  handoff/chats guncellemesi istendi. SONRAKI ADIM BU SORUNU COZMEK.
+
+- MEVCUT DURUM VERILERI (murdum erigi):
+  * softmax: rottenbanana %99.85 (kalibre %99.96), entropy 0.01
+  * embedding mesafe: 0.415 (gri bolge 0.355-0.460 icinde)
+  * en yakin merkez: rottenbanana -> softmax-merkez uyumu VAR
+  * Bu yuzden "sinirda" kademesine dusuyor ve tahmin gosteriliyor.
+  * UI su an sinirda durumda Meyve Turu (Muz) ve Kalite (CURUK)
+    alanlarini da normal sekilde dolduruyor - bu, yanlis tahmini
+    fazla "iddiali" gosteriyor.
+
+- SORUNUN OZU: Gri bolgede softmax-merkez uyumu sari elma gibi gercek
+  vakalari kurtarmak icin eklendi; ama murdum gibi yabanci meyvelerde
+  iki sinyal AYNI YANLIS sinifta uyusabiliyor (mor/koyu yuvarlak ->
+  rottenbanana). Uyum kosulu tek basina "gercek meyve" garantisi degil.
+
+- COZUM ADAYLARI (sonraki oturumda degerlendirilecek):
+  1) UI yumusatma: sinirda durumda Kalite/Meyve Turu'nu "Belirsiz"
+     gostermek, tahmini yalnizca "en cok benzedigi sinif" olarak sunmak
+     (kod degisikligi kucuk, davranis durust).
+  2) kNN sinyali eklemek: merkez yerine en yakin k egitim ornegine
+     mesafe (olculdu: sari elma 0.412 vs murdum 0.454); gri bolgede
+     kNN<esik sartiyla sinirda kademesine izin vermek. Sari elma ile
+     murdum arasinda 0.04'luk dar marj var - tek basina kirilgan.
+  3) Sinif-bazli gri bolge: rottenbanana gibi dar kumelerde (P99=0.403)
+     sinirda ust sinirini sinifin P99'una cekmek -> murdum (0.415 >
+     0.403) bilinmeyene duser, sari elma (rottenapples'da genis dagilim,
+     max 0.652) sinirda kalabilir. EN UMUT VERICI ADAY; olcum gerekli.
+  4) Kombinasyon: (3) + (1) birlikte.
+
+- ILGILI OLCUMLER (bolum 20'den): rottenbanana kendi merkezine P99=0.403,
+  rottenapples P99=0.390 ama max=0.652 (genis kuyruk), freshapples
+  P99=0.445. Sari elma rottenapples merkezine 0.450 (P99 ustu!) -
+  yani (3) tek basina sari elmayi da dusurebilir; kontrol edilmeli.
+
+- DIKKAT: Onceki butun kalibrasyon/karsilastirma raporlari T_yuksek=0.460
+  uc kademeli duruma gore uretildi. Karar mantigi degisirse
+  calibrate_ood.py + compare_ood.py yeniden kosulmali, rapor + PDF
+  guncellenmeli.
+================================================================
+
+22. MENDELEY VERI GUCLENDIRME + YENIDEN EGITIM (2026-06-11)
+----------------------------------------------------------------
+Plan tamamlandi. Tum adimlar otomatik pipeline ile calistirilabilir:
+  python run_mendeley_pipeline.py
+
+- VERI:
+  * download_mendeley.py: zip otomatik indirme (766 MB)
+  * integrate_mendeley.py: kaynak yolu otomatik (Original/Augmented);
+    --ood-only, --force-train bayraklari
+  * Train/test: sinif basina ~160 mendeley_* gorsel (toplam ~960)
+  * outputs/ood_eval/: uzum, guava, hunnap, nar, cilek (40'ar gorsel)
+
+- EGITIM / DEGERLENDIRME:
+  * train.py tamamlandi (val_accuracy ~0.956)
+  * evaluate.py: test accuracy %95.98 (2938 gorsel)
+
+- OOD YENILEME:
+  * models/ood_stats.json yeniden uretildi
+  * models/temperature_calibration.json: T=1.30
+  * src/config.py esikleri: T_yuksek=0.540, T_dusuk=0.330
+  * calibrate_ood.py + compare_ood.py yeniden kosuldu
+
+- UI YUMUSATMA (sinirda):
+  * utils/predictor.py: sinirda -> meyve_turu/genel_durum "Belirsiz"
+  * ui/main_window.py: sinirda metinleri guncellendi
+
+- DOGRULAMA (validate_mendeley.py):
+  * 7 dis ornek: 6/7 isaretleme (mandalina bilinen - beklenen sinirlilik)
+  * ood_eval orneklem: %100 isaretleme
+  * murdum_erigi: Bilinmeyen (mesafe 0.443)
+
+- RAPORLAR:
+  * reports/mendeley_dogrulama_raporu.md
+  * reports/ood_kalibrasyon_raporu.md (guncel)
+  * reports/akademik_rapor.pdf (Mendeley atifi + open-set guncelleme)
+  * README guncellendi
+
+- NOT: Izgarada uc kisitin ayni anda saglanamadigi goruldu (bilinen
+  yanlis bilinmeyen ~%7 vs hedef %2); yeni esikler ood_eval >=%90 ve
+  dis >=5/7 onceligiyle secildi.
+================================================================
+
+23. TAM MENDELEY BIRLESTIRME + VERI SETI OOD BYPASS (2026-06-11)
+----------------------------------------------------------------
+Kullanici geri bildirimi: veri setinden gelen gorseller %100 guvenle bile
+"Sinirda / dusuk guvenilirlik" uyarisi aliyor; temp_dataset fetch edilmis
+ama Augmented Image egitime tam girmemis.
+
+KOK NEDEN ANALIZI: reports/durum_analizi.md
+
+- OOD katmani dis dunya icin tasarlandi; egitim dagilimi genisleyince
+  dataset ornekleri gri bolgeye dusuyor.
+- Ilk entegrasyon yalnizca ~1200 mendeley_* eklemişti; Augmented Image'de
+  ~4540 elma/muz/portakal gorseli kullanilmamisti.
+- UI'da softmax (%95 Rotten Apple) ile OOD (Bilinmeyen) celisiyordu.
+
+YAPILANLAR:
+1) integrate_mendeley.py --full-augmented:
+   +3634 train, +906 test (mendeley_aug_* oneki)
+   Toplam dataset: ~15495 train, ~3844 test
+   temp_dataset silindi (--cleanup-temp)
+2) utils/predictor.py: dataset/ altindan yuklenen gorsellerde OOD devre
+   disi (yalnizca model tahmini; uyari yok)
+3) run_mendeley_pipeline.py: tam birlestirme adimi eklendi
+4) Yeniden egitim baslatildi (genisletilmis veri seti)
+
+NOT: Yabanci meyveler (uzum, guava, nar, cilek, hunnap) bilincli olarak
+6 sinifli modele GIRMEZ; outputs/ood_eval/ altinda kalir. Ejder meyvesi
+gibi sinif-disı girdiler OOD ile isaretlenmeye devam eder.
+================================================================
+
+24. 16 SINIF TAM ENTEGRASYON + EGITIM + UI (2026-06-11)
+----------------------------------------------------------------
+Kullanici talebi: Yabanci meyveleri tek klasorde birlestirmek yerine
+taze/curuk ayri siniflar olarak egitime almak (elma/muz/portakal gibi).
+
+YAPILANLAR:
+1) integrate_mendeley.py: 16 sinif EGITIM_ESLEME (8 meyve x taze/curuk).
+   ood_eval artik ayni sinif adlariyla holdout (freshgrapes/, rottengapes/ ...).
+2) --full-augmented: 16 sinifin tum Augmented Image gorselleri dataset'e.
+   Toplam: ~21735 train, ~5399 test.
+3) train.py: 16 sinif, 22 epoch (Asama1 early stop @12, Asama2 10 epoch).
+   En iyi val accuracy: %83.8. Test accuracy: %89.9 (evaluate.py).
+4) OOD: ood_stats.json + temperature T=1.30 yenilendi; calibrate_ood +
+   validate_mendeley kosuldu. Dis ornek 6/7 isaretleme.
+5) utils/predictor.py: dataset/ kaynakli gorsellerde OOD bypass (korundu).
+6) ui/main_window.py: responsive/scrollable tasarim; model bilgileri 5 bolum;
+   performans ozet karti; Grad-CAM hedef sinif bilgisi.
+7) utils/image_utils.py: rottengapes -> "Rotten Grape" duzeltmesi.
+
+KARAR (KULLANICI 2026-06-11):
+- OOD katmanina DOKUNULMAYACAK. Mevcut uc kademeli yapi korunur.
+  Veri seti kisitliligi nedeniyle bazi dis orneklerde (mandalina, ejder)
+  sinirda/bilinen celiskisi kabul edilen sinirlilik olarak kalir.
+  Asil guven kaynagi: 16 sinifli softmax + guven + Grad-CAM.
+
+ZAYIF SINIFLAR (test recall):
+  rottengapes ~%43, rottenjujube ~%69, rottenpomegranate ~%72.
+
+ACIK / OPSIYONEL (bloklayici degil):
+- reports/akademik_rapor.pdf: 16 sinif sonrasi generate_report.py ile
+  yeniden uretilmeli (%89.9, 16 sinif metrikleri).
+- README: Mendeley bolumu 16 sinifa gore guncellendi (bu oturum).
+- reports/durum_analizi.md: ara oturum notu; guncel durum bu bolum.
+- outputs/validation/: sari_elma, curuk_portakal ornekleri yok.
+- compare_ood.py son pipeline'da kosulmadi (kalibrasyon raporu mevcut).
+
+CALISTIRMA:
+  python app.py
+  python watch_training.py --follow   # egitim log izleme
+================================================================
