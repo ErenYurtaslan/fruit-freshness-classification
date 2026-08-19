@@ -1,0 +1,8 @@
+﻿Görsel,Eski Tahmin,Eski Güven,Yeni Tahmin,Yeni Güven,OOD Kararı,Entropy,Embedding Distance,En Yakın Sınıf Merkezi,Kararı Tetikleyen Kural
+Ejder Meyvesi,freshapples,%99.5,freshapples (düşük güven),%99.5,Sınırda (Düşük Güven),0.018,0.495,freshapples,"Gri bölge + softmax-merkez uyumu (mesafe 0.495, maxprob 0.99)"
+Liçi,freshapples,%99.6,freshapples (düşük güven),%99.6,Sınırda (Düşük Güven),0.017,0.492,freshapples,"Gri bölge + softmax-merkez uyumu (mesafe 0.492, maxprob 1.00)"
+Mor Üzüm,freshapples,%98.6,Bilinmeyen Meyve,-,Bilinmeyen Tür,0.047,0.548,freshapples,Mesafe > T_yüksek (0.548 > 0.540)
+Mor Erik,freshapples,%100.0,freshapples,%100.0,Bilinen Tür,0.000,0.321,freshapples,Bilinen sınıf bölgesinde (0.321 < 0.330)
+Mürdüm Eriği,rottenbanana,%99.8,rottenbanana (düşük güven),%99.8,Sınırda (Düşük Güven),0.007,0.415,rottenbanana,"Gri bölge + softmax-merkez uyumu (mesafe 0.415, maxprob 1.00)"
+Mandalina,freshoranges,%99.7,freshoranges,%99.7,Bilinen Tür,0.013,0.287,freshoranges,Bilinen sınıf bölgesinde (0.287 < 0.330)
+Greyfurt,freshoranges,%99.4,freshoranges (düşük güven),%99.4,Sınırda (Düşük Güven),0.023,0.381,freshoranges,"Gri bölge + softmax-merkez uyumu (mesafe 0.381, maxprob 0.99)"

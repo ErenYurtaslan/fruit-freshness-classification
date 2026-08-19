@@ -1,0 +1,305 @@
+{
+  "olusturma_zamani": "2026-06-10T14:58:36",
+  "dis_ornekler": [
+    {
+      "ad": "Ejder Meyvesi",
+      "dosya": "C:\\Users\\Eren Yurtaslan\\Desktop\\fruit-freshness-classification\\outputs\\ood_test\\ejder_meyvesi.png",
+      "tahmin_sinifi": "freshapples",
+      "max_prob": 0.9948341846466064,
+      "entropy": 0.018367089331150055,
+      "mesafe": 0.49488532808225205,
+      "en_yakin_merkezler": [
+        [
+          "freshapples",
+          0.49488532808225205
+        ],
+        [
+          "rottenapples",
+          0.5028818364689924
+        ],
+        [
+          "rottenoranges",
+          0.5152742509612396
+        ],
+        [
+          "freshoranges",
+          0.5227442645424745
+        ],
+        [
+          "rottenbanana",
+          0.5288308869114653
+        ],
+        [
+          "freshbanana",
+          0.5637673386337425
+        ]
+      ],
+      "karar": "Bilinen Tür",
+      "karar_ozeti": {
+        "mesafe_temelli_bilinen": false,
+        "oy_coklugu_bilinen": true,
+        "yuksek_olasilik_bilinen": true,
+        "cok_guvenli": true,
+        "veto_bilinmeyen": false
+      }
+    },
+    {
+      "ad": "Liçi",
+      "dosya": "C:\\Users\\Eren Yurtaslan\\Desktop\\fruit-freshness-classification\\outputs\\ood_test\\lici.png",
+      "tahmin_sinifi": "freshapples",
+      "max_prob": 0.9955796599388123,
+      "entropy": 0.0169985331594944,
+      "mesafe": 0.4915682164937769,
+      "en_yakin_merkezler": [
+        [
+          "freshapples",
+          0.4915682164937769
+        ],
+        [
+          "rottenapples",
+          0.5617442264646777
+        ],
+        [
+          "freshoranges",
+          0.5800694110354447
+        ],
+        [
+          "rottenoranges",
+          0.5880715981330216
+        ],
+        [
+          "rottenbanana",
+          0.6192764152068929
+        ],
+        [
+          "freshbanana",
+          0.6318076319356618
+        ]
+      ],
+      "karar": "Bilinen Tür",
+      "karar_ozeti": {
+        "mesafe_temelli_bilinen": false,
+        "oy_coklugu_bilinen": true,
+        "yuksek_olasilik_bilinen": true,
+        "cok_guvenli": true,
+        "veto_bilinmeyen": false
+      }
+    },
+    {
+      "ad": "Mor Üzüm",
+      "dosya": "C:\\Users\\Eren Yurtaslan\\Desktop\\fruit-freshness-classification\\outputs\\ood_test\\mor_uzum.png",
+      "tahmin_sinifi": "freshapples",
+      "max_prob": 0.9863515496253967,
+      "entropy": 0.04668136313557625,
+      "mesafe": 0.5480636824679964,
+      "en_yakin_merkezler": [
+        [
+          "freshapples",
+          0.5480636824679964
+        ],
+        [
+          "rottenapples",
+          0.5827170264838499
+        ],
+        [
+          "rottenbanana",
+          0.6471918497143276
+        ],
+        [
+          "rottenoranges",
+          0.6483940652687742
+        ],
+        [
+          "freshoranges",
+          0.6660885271374435
+        ],
+        [
+          "freshbanana",
+          0.6725627363769462
+        ]
+      ],
+      "karar": "Bilinen Tür",
+      "karar_ozeti": {
+        "mesafe_temelli_bilinen": false,
+        "oy_coklugu_bilinen": true,
+        "yuksek_olasilik_bilinen": true,
+        "cok_guvenli": false,
+        "veto_bilinmeyen": false
+      }
+    },
+    {
+      "ad": "Mor Erik",
+      "dosya": "C:\\Users\\Eren Yurtaslan\\Desktop\\fruit-freshness-classification\\outputs\\ood_test\\mor_erik.png",
+      "tahmin_sinifi": "freshapples",
+      "max_prob": 0.9999868869781494,
+      "entropy": 9.753749327501282e-05,
+      "mesafe": 0.3209141659631819,
+      "en_yakin_merkezler": [
+        [
+          "freshapples",
+          0.3209141659631819
+        ],
+        [
+          "rottenapples",
+          0.4747112172056549
+        ],
+        [
+          "rottenoranges",
+          0.5078905101255051
+        ],
+        [
+          "freshoranges",
+          0.5165005433953689
+        ],
+        [
+          "rottenbanana",
+          0.5722520789747473
+        ],
+        [
+          "freshbanana",
+          0.5907320423629678
+        ]
+      ],
+      "karar": "Bilinen Tür",
+      "karar_ozeti": {
+        "mesafe_temelli_bilinen": true,
+        "oy_coklugu_bilinen": true,
+        "yuksek_olasilik_bilinen": true,
+        "cok_guvenli": true,
+        "veto_bilinmeyen": false
+      }
+    },
+    {
+      "ad": "Mürdüm Eriği",
+      "dosya": "C:\\Users\\Eren Yurtaslan\\Desktop\\fruit-freshness-classification\\outputs\\ood_test\\murdum_erigi.png",
+      "tahmin_sinifi": "rottenbanana",
+      "max_prob": 0.998474657535553,
+      "entropy": 0.006973454728722572,
+      "mesafe": 0.41520581039827087,
+      "en_yakin_merkezler": [
+        [
+          "rottenbanana",
+          0.41520581039827087
+        ],
+        [
+          "freshapples",
+          0.4686462162893412
+        ],
+        [
+          "rottenapples",
+          0.4759027176058901
+        ],
+        [
+          "rottenoranges",
+          0.5033248610069576
+        ],
+        [
+          "freshbanana",
+          0.5128896746347142
+        ],
+        [
+          "freshoranges",
+          0.5977196481038969
+        ]
+      ],
+      "karar": "Bilinen Tür",
+      "karar_ozeti": {
+        "mesafe_temelli_bilinen": false,
+        "oy_coklugu_bilinen": true,
+        "yuksek_olasilik_bilinen": true,
+        "cok_guvenli": true,
+        "veto_bilinmeyen": false
+      }
+    },
+    {
+      "ad": "Mandalina",
+      "dosya": "C:\\Users\\Eren Yurtaslan\\Desktop\\fruit-freshness-classification\\outputs\\ood_test\\mandalina.png",
+      "tahmin_sinifi": "freshoranges",
+      "max_prob": 0.9966621398925781,
+      "entropy": 0.012733145616948605,
+      "mesafe": 0.2866095873870841,
+      "en_yakin_merkezler": [
+        [
+          "freshoranges",
+          0.2866095873870841
+        ],
+        [
+          "rottenoranges",
+          0.41999636453471656
+        ],
+        [
+          "freshapples",
+          0.4465325510316376
+        ],
+        [
+          "rottenapples",
+          0.44771063711981063
+        ],
+        [
+          "freshbanana",
+          0.5902872201382985
+        ],
+        [
+          "rottenbanana",
+          0.5952509762516698
+        ]
+      ],
+      "karar": "Bilinen Tür",
+      "karar_ozeti": {
+        "mesafe_temelli_bilinen": true,
+        "oy_coklugu_bilinen": true,
+        "yuksek_olasilik_bilinen": true,
+        "cok_guvenli": true,
+        "veto_bilinmeyen": false
+      }
+    },
+    {
+      "ad": "Greyfurt",
+      "dosya": "C:\\Users\\Eren Yurtaslan\\Desktop\\fruit-freshness-classification\\outputs\\ood_test\\greyfurt.png",
+      "tahmin_sinifi": "freshoranges",
+      "max_prob": 0.9936973452568054,
+      "entropy": 0.023349327966570854,
+      "mesafe": 0.38050569107594034,
+      "en_yakin_merkezler": [
+        [
+          "freshoranges",
+          0.38050569107594034
+        ],
+        [
+          "rottenoranges",
+          0.4822568000990922
+        ],
+        [
+          "freshapples",
+          0.48431699734095834
+        ],
+        [
+          "rottenapples",
+          0.493364919033349
+        ],
+        [
+          "rottenbanana",
+          0.6437000862024538
+        ],
+        [
+          "freshbanana",
+          0.6481220407553894
+        ]
+      ],
+      "karar": "Bilinen Tür",
+      "karar_ozeti": {
+        "mesafe_temelli_bilinen": false,
+        "oy_coklugu_bilinen": true,
+        "yuksek_olasilik_bilinen": true,
+        "cok_guvenli": true,
+        "veto_bilinmeyen": false
+      }
+    }
+  ],
+  "bilinen_ozet": {
+    "ornek_sayisi": 360,
+    "mesafe_p50": 0.2343167175168423,
+    "mesafe_p95": 0.3503342685841777,
+    "mesafe_p99": 0.38356482697712807
+  }
+}
