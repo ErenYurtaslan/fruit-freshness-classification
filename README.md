@@ -35,7 +35,7 @@ Bu projenin veri seti boyutu (~8 GB) büyük olduğu için GitHub deposuna dahil
 
 1. **Veri Setini İndirin:** [Google Drive İndirme Bağlantısı](https://drive.google.com/file/d/1XH6kjIxgMUYA8SG-p6aOoVV44c5Ns7V1/view?usp=sharing) üzerinden ZIP dosyasını bilgisayarınıza indirin.
 2. **ZIP'ten Çıkarın:** İndirdiğiniz `dataset.zip` dosyasının içeriğini ayıklayın.
-3. Proje ana dizinine zipin içindeki iki dosyayı ekleyin. Klasör yapısı, [Klasör Yapısı](#klasör-yapısı) başlığındaki mimariyle aynı olmalıdır.
+3. Proje ana dizinine zipin içindeki iki dosyayı ekleyin(dataset ve temp_dataset, ikincisi geçici veri kümesi, incelenmesi adına eklenmiştir). Klasör yapısı, [Klasör Yapısı](#klasör-yapısı) başlığındaki mimariyle aynı olmalıdır.
 
 ## Proje Özeti
 
