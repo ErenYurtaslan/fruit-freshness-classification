@@ -1,0 +1,28 @@
+MEYVE TAZELIK SINIFLANDIRMA - CLASSIFICATION REPORT
+=======================================================
+
+                   precision    recall  f1-score   support
+
+      freshapples       0.78      1.00      0.88       581
+      freshbanana       0.91      1.00      0.95       569
+      freshgrapes       0.66      1.00      0.79       160
+       freshguava       0.99      0.92      0.95       159
+      freshjujube       0.76      0.99      0.86       158
+     freshoranges       0.89      0.95      0.92       587
+ freshpomegranate       0.91      0.81      0.86       159
+  freshstrawberry       0.95      0.94      0.95       147
+     rottenapples       0.94      0.85      0.89       788
+     rottenbanana       1.00      0.92      0.96       717
+      rottengapes       1.00      0.43      0.60       149
+      rottenguava       0.91      0.94      0.92       159
+     rottenjujube       0.95      0.69      0.80       158
+    rottenoranges       0.94      0.86      0.90       602
+rottenpomegranate       0.94      0.72      0.82       159
+ rottenstrawberry       0.94      0.95      0.94       147
+
+         accuracy                           0.90      5399
+        macro avg       0.90      0.87      0.87      5399
+     weighted avg       0.91      0.90      0.90      5399
+
+
+Genel Dogruluk (Accuracy): 0.8989
