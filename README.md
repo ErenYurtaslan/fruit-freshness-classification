@@ -24,7 +24,7 @@ Görüntü işleme ve derin öğrenme kullanarak meyvelerin **taze** mi yoksa **
 - [Sınırlamalar](#sınırlamalar)
 - [Gelecek Çalışmalar](#gelecek-çalışmalar)
 - [Kaynakça](#kaynakça)
-- [Lisans](#lisans)
+
 
 ---
 
