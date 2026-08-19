@@ -8,6 +8,7 @@ Görüntü işleme ve derin öğrenme kullanarak meyvelerin **taze** mi yoksa **
 
 ## İçindekiler
 
+- [Veri Seti (Dataset) Kurulumu](#veri-seti-(dataset)-kurulumu)
 - [Proje Özeti](#proje-özeti)
 - [Özellikler](#özellikler)
 - [Veri Seti](#veri-seti)
@@ -27,6 +28,14 @@ Görüntü işleme ve derin öğrenme kullanarak meyvelerin **taze** mi yoksa **
 
 
 ---
+
+## Veri Seti (Dataset) Kurulumu
+
+Bu projenin veri seti boyutu (~8 GB) büyük olduğu için GitHub deposuna dahil edilmemiştir. Projeyi bilgisayarınızda çalıştırmadan önce aşağıdaki adımları uygulamalısınız:
+
+1. **Veri Setini İndirin:** [Google Drive İndirme Bağlantısı](https://drive.google.com/file/d/1XH6kjIxgMUYA8SG-p6aOoVV44c5Ns7V1/view?usp=sharing) üzerinden ZIP dosyasını bilgisayarınıza indirin.
+2. **ZIP'ten Çıkarın:** İndirdiğiniz `dataset.zip` dosyasının içeriğini ayıklayın.
+3. Proje ana dizinine zipin içindeki iki dosyayı ekleyin. Klasör yapısı, [Klasör Yapısı](#klasör-yapısı) başlığındaki mimariyle aynı olmalıdır.
 
 ## Proje Özeti
 
