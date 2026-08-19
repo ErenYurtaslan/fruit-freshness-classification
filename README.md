@@ -209,6 +209,4 @@ Grad-CAM, modelin kararını verirken görüntünün hangi bölgelerine baktığ
 - Mendeley Data (2020). *Fresh and Rotten Fruits Dataset.* DOI: [10.17632/bdd69gyhv8.1](https://doi.org/10.17632/bdd69gyhv8.1) (CC BY 4.0).
 - TensorFlow ve Keras resmi dokümantasyonu.
 
-## Lisans
 
-Bu proje akademik/eğitim amaçlıdır.
