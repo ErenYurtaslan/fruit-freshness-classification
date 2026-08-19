@@ -1,0 +1,25 @@
+# Grad-CAM Destekli Aciklanabilir Meyve Tazelik Siniflandirma Sistemi
+# Python 3.9 (Windows) icin test edilmis sabit surumler.
+# Kurulum: pip install -r requirements.txt
+
+# Derin ogrenme cekirdegi (Windows + Python 3.9 uyumlu son surum)
+tensorflow==2.10.1
+
+# Sayisal islemler (TensorFlow 2.10 ile uyumlu numpy araligi)
+numpy==1.23.5
+
+# Goruntu isleme
+opencv-python==4.8.1.78
+Pillow==9.5.0
+
+# Gorsellestirme
+matplotlib==3.7.5
+
+# Metrikler ve yardimci araclar
+scikit-learn==1.3.2
+
+# Masaustu arayuz
+PyQt5==5.15.9
+
+# Akademik PDF uretimi
+reportlab==4.0.9
