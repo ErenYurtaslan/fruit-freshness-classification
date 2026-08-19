@@ -1,0 +1,10 @@
+{
+  "T": 1.4500000000000008,
+  "olusturma_zamani": "2026-06-11T15:05:17",
+  "dogrulama_ornek_sayisi": 4347,
+  "nll_once": 0.4610407054424286,
+  "nll_sonra": 0.42593222856521606,
+  "ece_once": 0.0648059173372934,
+  "ece_sonra": 0.02236877113395594,
+  "argmax_degisti_mi": false
+}
