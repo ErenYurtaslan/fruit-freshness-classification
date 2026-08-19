@@ -8,7 +8,7 @@ Görüntü işleme ve derin öğrenme kullanarak meyvelerin **taze** mi yoksa **
 
 ## İçindekiler
 
-- [Veri Seti (Dataset) Kurulumu](#veri-seti-(dataset)-kurulumu)
+- [Veri Seti (Dataset) Kurulumu](#veri-seti-dataset-kurulumu)
 - [Proje Özeti](#proje-özeti)
 - [Özellikler](#özellikler)
 - [Veri Seti](#veri-seti)
